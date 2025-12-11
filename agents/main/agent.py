@@ -34,7 +34,7 @@ async def promptAgent(name, instruction, server_names, prompt):
             
             end = time.time()
             logger.info(f"[{name}] Worked for {end-start}")
-            print("Result:\n", result)
+            return result
 
 async def central(prompt):
     return await promptAgent("centralized_agent", Instructions.centralized, Servers.centralized, prompt)

@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "aiosqlite>=0.21.0",
     "mcp-agent[google,openai]>=0.2.6",
     "pandas>=2.3.3",
     "pydantic>=2.12.5",

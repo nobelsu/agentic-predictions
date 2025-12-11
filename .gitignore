@@ -211,3 +211,5 @@ __marimo__/
 *.jsonl
 *fingerprint.json 
 browser-state*.json
+
+.csv

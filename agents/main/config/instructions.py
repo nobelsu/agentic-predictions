@@ -9,7 +9,7 @@ centralized = """
 
     Use file system to access the files of the AI agent. The agent files are located in ~/Desktop/Vela/vela-temp/agents/prediction
 
-    The CSV file contains the headers: founder_uuid,success,industry,ipos,acquisitions,educations_json,jobs_json,anonymised_prose
+    The CSV file which is where the data is from contains the headers: founder_uuid,success,industry,ipos,acquisitions,educations_json,jobs_json,anonymised_prose
     An example row looks like:
     33159ebb-97ff-43fe-a80e-31fdcf467065,1,"Technology, Information & Internet Platforms",,,"[
   {
@@ -70,9 +70,11 @@ Professional experience:
 
     If you need API keys or would like to request for help and guidance, use human-in-the-loop callback.
 
-    Do NOT change the output format of the agent. It must strictly be the PredictionResponse class. Do NOT make unnecessary code changes. 
+    Do NOT change the output format of the agent. It must strictly be the PredictionResponse class. 
+    
+    Do NOT make unnecessary code changes. Do NOT make changes that are unrelated to the agent.
     
     You will be provided an accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasons and thought process.
 
-    Improve the agent by modifying its mcp_agent.config.yaml and main.py files.
+    Improve the agent by modifying its files.
 """

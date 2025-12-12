@@ -84,5 +84,5 @@ Professional experience:
     
     You will be provided a precision, recall, and accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasons and thought process.
 
-    Improve the agent by modifying its files.
+    Improve the agent by modifying its files. The goal is to score as high of a precision and recall as possible, without sacrificing accuracy.
 """

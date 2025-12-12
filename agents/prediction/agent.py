@@ -6,8 +6,8 @@ import aiosqlite
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
-from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
-from mcp_agent.config import Settings, MCPSettings, MCPServerSettings, LoggerSettings, OpenAISettings
+from mcp_agent.workflows.llm.augmented_llm_google import GoogleAugmentedLLM
+from mcp_agent.config import Settings, MCPSettings, MCPServerSettings, LoggerSettings, GoogleSettings
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
 
 # DO NOT CHANGE START
@@ -44,12 +44,12 @@ settings = Settings(
             ),
             "think-mcp": MCPServerSettings(
                 command="uvx",
-                args=["think-mcp"],
+                args=["think-mcp", "--advanced"],
                 env={"TAVILY_API_KEY":"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"}
             )
         }
     ),
-    openai=OpenAISettings(default_model="gpt-5.1"),
+    google=GoogleSettings(default_model="gemini-3-pro-preview"),
 )
 
 async def predictSuccess(prompts, actual):
@@ -105,19 +105,27 @@ async def predictSuccess(prompts, actual):
         )
 
         async with agent:
-            llm = await agent.attach_llm(OpenAIAugmentedLLM)
-            convertor_llm = await convertor_agent.attach_llm(OpenAIAugmentedLLM)
+            llm = await agent.attach_llm(GoogleAugmentedLLM)
+            convertor_llm = await convertor_agent.attach_llm(GoogleAugmentedLLM)
 # DO NOT CHANGE START
             results = []
             for prompt in prompts:
-                result = await llm.generate_str(message=prompt,request_params=RequestParams(
-                    max_iterations=20  # Set your desired limit
-                ),)
-                converted_result = await convertor_llm.generate_structured(message=result,response_model=PredictionResponse)
+                result = await llm.generate_str(
+                    message=prompt,
+                    request_params=RequestParams(
+                        max_iterations=10
+                    ),
+                )
+                converted_result = await convertor_llm.generate_structured(
+                    message=result,
+                    response_model=PredictionResponse, 
+                    request_params=RequestParams(
+                        model="gemini-2.5-flash",
+                    ),
+                )
                 results.append(converted_result)
 
             blocks = []
-            cnt = 0
             tp = 0
             fp = 0
             tn = 0

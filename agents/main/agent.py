@@ -6,7 +6,6 @@ from datetime import datetime, timezone, timedelta
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_google import GoogleAugmentedLLM
-from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
 
 from agents.main.config import instructions as Instructions
@@ -38,16 +37,19 @@ async def promptAgent(name, instruction, server_names, prompt):
 
         async with agent:
             llm = await agent.attach_llm(GoogleAugmentedLLM)
-            convertor_llm = await convertor_agent.attach_llm(OpenAIAugmentedLLM)
+            convertor_llm = await convertor_agent.attach_llm(GoogleAugmentedLLM)
             result = await llm.generate_str(
                 message=prompt,
                 request_params=RequestParams(
-                    max_iterations=30  # Set your desired limit
+                    max_iterations=25  # Set your desired limit
                 ),
             )
             converted_result = await convertor_llm.generate_structured(
                 message=result,
                 response_model=MainResponse,
+                request_params=RequestParams(
+                    model="gemini-2.5-flash"  # Set your desired limit
+                ),
             )
             
             end = time.time()

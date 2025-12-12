@@ -28,7 +28,7 @@ async def train():
             rows.append(row_to_formatted_string(row))
             actual.append(row.get("success"))
             if len(rows) >= 10:
-                proc_res = subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual)
+                proc_res = subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual, capture_output=True, text=True)
                 instructions = await getLatestReport()
                 augmentedInstructions = instructions + "\n\nSTDOUT:\n" + await MainAgent.summarize(proc_res.stdout) + "\n\nSTDERR:\n" + await MainAgent.summarize(proc_res.stderr)
                 await MainAgent.central(augmentedInstructions)
@@ -48,7 +48,7 @@ async def testPredict():
             rows.append(row_to_formatted_string(row))
             actual.append(row.get("success"))
             if len(rows) >= 1:
-                subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual)
+                subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual, capture_output=True, text=True)
                 instructions = await getLatestReport()
                 print(instructions)
                 rows = []

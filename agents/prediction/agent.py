@@ -1,16 +1,14 @@
 from pydantic import BaseModel
 import asyncio
 import argparse
-import sqlite3
 from datetime import datetime, timezone, timedelta
 import aiosqlite
-import yaml
-import os
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.config import Settings, MCPSettings, MCPServerSettings, LoggerSettings, OpenAISettings
+from mcp_agent.workflows.llm.augmented_llm import RequestParams
 
 # DO NOT CHANGE START
 
@@ -44,6 +42,11 @@ settings = Settings(
                 args=["-y", "@modelcontextprotocol/server-sequential-thinking"],
                 env={"MAX_HISTORY_SIZE": "1000"},
             ),
+            "think-mcp": MCPServerSettings(
+                command="uvx",
+                args=["think-mcp"],
+                env={"TAVILY_API_KEY":"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"}
+            )
         }
     ),
     openai=OpenAISettings(default_model="gpt-5.1"),
@@ -87,14 +90,31 @@ async def predictSuccess(prompts, actual):
             instruction=prediction_instruction,
             server_names=["g-search", "fetcher", "sequential-thinking"],
         )
+        convertor_agent = Agent(
+            name="convertor-agent",
+            instruction="""
+                You are a data convertor agent. 
+
+                Your task is to simply structure the unstructured output of another AI agent into the format given.
+
+                Use sequential thinking to reason about this.
+
+                Think carefully. Do not make any assumptions. Do not lie. Use only the output you will be fed.
+            """,
+            server_names=["think-mcp","sequential-thinking"]
+        )
 
         async with agent:
             llm = await agent.attach_llm(OpenAIAugmentedLLM)
+            convertor_llm = await convertor_agent.attach_llm(OpenAIAugmentedLLM)
 # DO NOT CHANGE START
             results = []
             for prompt in prompts:
-                result = await llm.generate_structured(message=prompt, response_model=PredictionResponse)
-                results.append(result)
+                result = await llm.generate_str(message=prompt,request_params=RequestParams(
+                    max_iterations=20  # Set your desired limit
+                ),)
+                converted_result = await convertor_llm.generated_structured(message=result,response_model=PredictionResponse)
+                results.append(converted_result)
 
             blocks = []
             cnt = 0

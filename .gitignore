@@ -213,3 +213,4 @@ __marimo__/
 browser-state*.json
 
 .csv
+.db

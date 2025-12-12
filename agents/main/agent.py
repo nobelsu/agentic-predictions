@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_google import GoogleAugmentedLLM
+from mcp_agent.workflows.llm.augmented_llm_openai import OpenAIAugmentedLLM
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
 
 from agents.main.config import instructions as Instructions
@@ -29,19 +30,29 @@ async def promptAgent(name, instruction, server_names, prompt):
             server_names=server_names,
         )
 
+        convertor_agent = Agent(
+            name="convertor-agent",
+            instruction=Instructions.convertor,
+            server_names=["think-mcp","sequential-thinking"]
+        )
+
         async with agent:
             llm = await agent.attach_llm(GoogleAugmentedLLM)
-            result = await llm.generate_structured(
+            convertor_llm = await convertor_agent.attach_llm(OpenAIAugmentedLLM)
+            result = await llm.generate_str(
                 message=prompt,
                 request_params=RequestParams(
                     max_iterations=30  # Set your desired limit
                 ),
-                response_model=MainResponse
+            )
+            converted_result = await convertor_llm.generated_structured(
+                message=result,
+                response_model=MainResponse,
             )
             
             end = time.time()
             logger.info(f"[{name}] Worked for {end-start}")
-            return result
+            return converted_result
 
 async def uploadChanges(text):
     async with aiosqlite.connect("files.db") as db:

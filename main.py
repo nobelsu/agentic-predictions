@@ -2,7 +2,6 @@ import time
 import asyncio
 import csv
 import subprocess
-import sqlite3
 import aiosqlite
 
 import agents.main.agent as MainAgent

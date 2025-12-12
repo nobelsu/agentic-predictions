@@ -29,6 +29,12 @@ mcp:
       env: 
         MAX_HISTORY_SIZE: "1000"
     
+    think-mcp: 
+      command: "uvx"
+      args: ["think-mcp", "--advanced"]
+      env: 
+        TAVILY_API_KEY: "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"
+    
     mcp-registry: 
       command: "npx"
       args: [
@@ -61,4 +67,4 @@ google:
 openai:
   # Secrets (API keys, etc.) are stored in an mcp_agent.secrets.yaml file which can be gitignored
   #  default_model: "o3-mini"
-  default_model: "gpt-5.1" # use better models
+  default_model: "gpt-5.0-mini" # use better models

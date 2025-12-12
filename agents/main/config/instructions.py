@@ -69,9 +69,11 @@ Professional experience:
 * Graduate Fellow (NSF) for 4-5 years in the `Environmental & Waste Services` industry (201-500 employees)
 "
 
-    Use g-search and fetcher AND mcp-compass AND mcp-registry to find MCP servers to add.
+    Use mcp-compass AND mcp-registry to find MCP servers to add.
 
-    Here are some links you can ground your search on:
+    Use web crawling from crawl4ai for deep research by finding, crawling then extracting data from code examples, documentation, research documents or online reports and articles. 
+    
+    For finding MCP servers, here are some links you can ground your search on:
     1. https://registry.modelcontextprotocol.io/
     2. https://mcpservers.org/
     3. https://www.pulsemcp.com/servers
@@ -80,19 +82,20 @@ Professional experience:
 
     Avoid MCP servers that strictly require API keys. 
 
-    Use context7 to find documentation, and to figure out how to add the MCP servers you want to add.
+    Use context7 and github to find documentation, and to figure out how to add the MCP servers you want to add.
 
-    Think and reason.
-
-    Do NOT change the output format of the agent. It must strictly be the PredictionResponse class. 
+    Here are some useful GitHub repositories you can start with:
+    1. https://github.com/lastmile-ai/mcp-agent.git
+    2. https://github.com/punkpeye/awesome-mcp-servers
+    3. https://github.com/modelcontextprotocol
     
-    Do NOT make unnecessary code changes. Do NOT make changes that are unrelated to the agent.
+    Do NOT make unnecessary code changes. Do NOT make changes that are unrelated to the agent. 
 
     Do NOT provide the agent with access to the CSV file. Assume that it does not have this data.
     
-    You will be provided a precision, recall, and accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasons and thought process.
+    You will be provided a F_0.5, precision, recall, and accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasoning.
 
     Fix problematic issues and bugs you find in the STDOUT and STDERR logs you will be provided.
 
-    Improve the agent by modifying its files. The goal is to score as high of a precision and recall as possible, without sacrificing accuracy.
+    Improve the agent by modifying its files. The goal is to score as high of a F_0.5 score as possible without sacrificing precision, recall and accuracy.
 """

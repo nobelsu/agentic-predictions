@@ -20,7 +20,7 @@ async def getLatestReport():
 
 async def train():
     start = time.time()
-    with open("data/train.csv", newline="", encoding="utf-8") as f_in:
+    with open("data/test.csv", newline="", encoding="utf-8") as f_in:
         reader = csv.DictReader(f_in)
         rows = []
         actual = []
@@ -30,7 +30,17 @@ async def train():
             if len(rows) >= 10:
                 proc_res = subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual, capture_output=True, text=True)
                 instructions = await getLatestReport()
-                augmentedInstructions = instructions + "\n\nSTDOUT:\n" + await MainAgent.summarize(proc_res.stdout) + "\n\nSTDERR:\n" + await MainAgent.summarize(proc_res.stderr)
+
+                stdOut = await MainAgent.summarize(proc_res.stdout)
+                if not stdOut:
+                    stdOut = ""
+                stdErr = await MainAgent.summarize(proc_res.stderr)
+                if not stdErr:
+                    stdErr = ""
+                augmentedInstructions = instructions + "\n\nSTDOUT:\n" + stdOut + "\n\nSTDERR:\n" + stdErr
+
+                print("!!AUGMENTED INSTRUCTIONS START!!\n\n",augmentedInstructions,"\n\n!!AUGMENTED INSTRUCTIONS END!!\n")
+
                 await MainAgent.central(augmentedInstructions)
                 rows = []
                 actual = []
@@ -48,9 +58,19 @@ async def testPredict():
             rows.append(row_to_formatted_string(row))
             actual.append(row.get("success"))
             if len(rows) >= 1:
-                subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual, capture_output=True, text=True)
+                proc_res = subprocess.run(["uv", "run", "agents/prediction/agent.py", "--p"] + rows + ["--a"] + actual, capture_output=True, text=True)
                 instructions = await getLatestReport()
-                print(instructions)
+                stdOut = await MainAgent.summarize(proc_res.stdout)
+                if not stdOut:
+                    stdOut = ""
+                stdErr = await MainAgent.summarize(proc_res.stderr)
+                if not stdErr:
+                    stdErr = ""
+                augmentedInstructions = instructions + "\n\nSTDOUT:\n" + stdOut + "\n\nSTDERR:\n" + stdErr
+
+                print("!!AUGMENTED INSTRUCTIONS START!!\n\n",augmentedInstructions,"\n\n!!AUGMENTED INSTRUCTIONS END!!\n")
+
+                await MainAgent.central(augmentedInstructions)
                 rows = []
                 actual = []
                 break

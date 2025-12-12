@@ -1,8 +1,10 @@
 from pydantic import BaseModel
 import asyncio
 import argparse
+import os
 from datetime import datetime, timezone, timedelta
 import aiosqlite
+import traceback
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
@@ -15,8 +17,6 @@ from mcp_agent.workflows.llm.augmented_llm import RequestParams
 class PredictionResponse(BaseModel):
     prediction: bool
     reason: str 
-    thought_process: list[str] 
-    tool_history: list[str]
 
 # DO NOT CHANGE END
 
@@ -25,7 +25,7 @@ settings = Settings(
     execution_engine="asyncio",
     logger=LoggerSettings(
         transports=["console", "file"],
-        level="info",
+        level="debug",
         progress_display=True,
         path_settings={
             "path_pattern":"logs/mcp-agent-{unique_id}.jsonl",
@@ -35,17 +35,14 @@ settings = Settings(
     ),
     mcp=MCPSettings(
         servers={
-            "g-search": MCPServerSettings(command="npx", args=["-y", "g-search-mcp"]),
-            "fetcher": MCPServerSettings(command="npx", args=["-y", "fetcher-mcp"]),
             "sequential-thinking": MCPServerSettings(
                 command="npx",
                 args=["-y", "@modelcontextprotocol/server-sequential-thinking"],
                 env={"MAX_HISTORY_SIZE": "1000"},
             ),
-            "think-mcp": MCPServerSettings(
-                command="uvx",
-                args=["think-mcp", "--advanced"],
-                env={"TAVILY_API_KEY":"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"}
+            "crawl4ai": MCPServerSettings(
+                transport="sse",
+                url="http://localhost:11235/mcp/sse"
             )
         }
     ),
@@ -57,15 +54,15 @@ async def predictSuccess(prompts, actual):
 
     async with app.run() as agent_app:
         prediction_instruction = f"""
-            You are an agent whose job is to predict whether a start-up will be an outlier success, based on the founder's anonymised profile.
+            You are an expert venture capital analyst agent. Your job is to predict whether a start-up will be an "outlier success" based on the founder's anonymised profile.
             
             You will be provided the data:
             1. industry: The industry which the start-up is operating in. 
-            2. ipos: Previous IPOs by the founder
-            3. acquisitions: Previous acquisitions by the founder
-            4. educations_json: Educational background of the founder
-            5. jobs_json: Professional background of the founder
-            6. anonymised_prose: An anonymised paragraph containing the founder's educational and professional background and the industry of his startup.
+            2. ipos: Previous IPOs by the founder 
+            3. acquisitions: Previous acquisitions by the founder 
+            4. educations_json: Educational background 
+            5. jobs_json: Professional background 
+            6. anonymised_prose: Narrative description.
 
             A start-up is considered successful if:
             - Exits via IPO at a valuation exceeding $500M;
@@ -73,35 +70,33 @@ async def predictSuccess(prompts, actual):
             - Raises over $500M in total funding.
 
             Your task is to predict whether or not the startup will succeed. You will need to output:
-            1. prediction: Whether or not the startup will succeed
-            2. reason: Reason for prediction
-            3. thought_process: Sequence of thoughts to arrive at your conclusion
-            4. tool_history: Sequence of MCP servers and tools used to arrive at your conclusion. Be specific about what you obtained from using them. If you did not use the server, do not lie.
-
-            Use sequential thinking to reason about this.
+            1. prediction: Whether or not the startup will succeed (True/False)
+            2. reason: Reasoning for prediction
             
-            The other servers include: 
-            - g-search: to search for relevant information that could help with reasoning.
-            - fetcher: to read the websites found by search and extract the necessary data.
+            Use sequential thinking to reason and formulate a plan.
+            
+            Use this crawl4ai perform deep research on reports or articles.
         """
 
         agent = Agent(
             name="prediction-agent",
             instruction=prediction_instruction,
-            server_names=["g-search", "fetcher", "sequential-thinking"],
+            server_names=["crawl4ai","sequential-thinking"],
         )
         convertor_agent = Agent(
             name="convertor-agent",
             instruction="""
                 You are a data convertor agent. 
 
-                Your task is to simply structure the unstructured output of another AI agent into the format given.
+                Your task is to generate a structured response from the unstructured output of another AI agent.
 
-                Use sequential thinking to reason about this.
+                Follow the response model provided:
+                prediction: Boolean value indicating the agent's prediction (success or not)
+                reason: String value indicating the agent's explanation for the prediction
 
-                Do not make any assumptions. Do not lie. Use only the output you will be fed. Leave the field empty if you find nothing in the output matching it. Do not leave it as `None`.
+                Use only the information you are fed. Set the field to be an empty string if you find nothing in the output matching it. Do not leave it as `None`.
             """,
-            server_names=["think-mcp","sequential-thinking"]
+            server_names=[]
         )
 
         async with agent:
@@ -110,17 +105,37 @@ async def predictSuccess(prompts, actual):
 # DO NOT CHANGE START
             results = []
             for prompt in prompts:
-                result = await llm.generate_str(
-                    message=prompt,
-                    request_params=RequestParams(
-                        max_iterations=10
-                    ),
-                )
-                converted_result = await convertor_llm.generate_structured(
-                    message=result,
-                    response_model=PredictionResponse, 
-                )
-                results.append(converted_result)
+                try:
+                    result = await llm.generate_str(
+                        message=prompt,
+                        request_params=RequestParams(
+                            max_iterations=20
+                        ),
+                    )
+                    
+                    try:
+                        converted_result = await convertor_llm.generate_structured(
+                            message=result,
+                            response_model=PredictionResponse, 
+                        )
+                        results.append(converted_result)
+                    except Exception as e:
+                        print(f"Error converting result: {e}")
+                        traceback.print_exc()
+                        # Fallback or skip
+                        # Creating a dummy failure response to avoid crashing the whole batch
+                        results.append(PredictionResponse(
+                            prediction=False,
+                            reason=f"Error during conversion: {str(e)}",
+                        ))
+                        
+                except Exception as e:
+                    print(f"Error generating prediction: {e}")
+                    traceback.print_exc()
+                    results.append(PredictionResponse(
+                        prediction=False,
+                        reason=f"Error during generation: {str(e)}",
+                    ))
 
             blocks = []
             tp = 0
@@ -143,15 +158,22 @@ async def predictSuccess(prompts, actual):
                         f"Agent answer: {r.prediction}",
                         f"Correct answer: {str(actual[i-1] == "1")}",
                         f"Reasoning: {r.reason}",
-                        f"Thought process:\n{'\n'.join(r.thought_process) if r.thought_process else '-'}",
-                        f"Tool history:\n{'\n'.join(r.tool_history) if r.tool_history else '-'}",
                         ""
                     ]
                 blocks.append("\n".join(block))
-            precision = f"{tp}/{tp+fp}"
-            recall = f"{tp}/{tp+fn}"
-            accuracy = f"{tp+tn}/{tp+fn+tn+tp}"
-            return (f"**REPORT OF RESULTS:**\n\nPrecision: {precision}\nRecall: {recall}\nAccuracy: {accuracy}\n\n") + ("\n".join(blocks))
+            precision = 0
+            recall = 0
+            accuracy = 0
+            fscore = 0
+            if (tp+fp):
+                precision = tp/(tp+fp)
+            if (tp+fn):
+                recall = tp/(tp+fn)
+            if (tp+fn+tn+fp):
+                accuracy = (tp+tn)/(tp+fn+tn+fp)
+            if (tp+fn+fp):
+                fscore = (1.25*tp)/(1.25*tp+0.25*fn+fp)
+            return (f"**REPORT OF RESULTS:**\n\nF_0.5 score: {fscore}\nPrecision: {precision}\nRecall: {recall}\nAccuracy: {accuracy}\n\n") + ("\n".join(blocks))
 
 async def uploadReport(text):
     async with aiosqlite.connect("files.db") as db:

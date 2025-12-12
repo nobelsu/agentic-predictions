@@ -5,8 +5,8 @@ from sklearn.model_selection import train_test_split
 input_csv = "data.csv"       # your original CSV
 train_csv = "train.csv"      # output train CSV
 test_csv = "test.csv"        # output test CSV
-test_size = 0.3              # 30% for testing
-random_state = 42            # for reproducibility
+test_size = 0.08              # 8% for testing
+random_state = 67            # for reproducibility
 shuffle = True               # shuffle before splitting
 
 # --- LOAD DATA ---

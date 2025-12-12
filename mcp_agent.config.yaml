@@ -61,6 +61,23 @@ mcp:
       command: "npx"
       "args": ["-y", "@upstash/context7-mcp", "--api-key", "ctx7sk-163b2b07-b9aa-4b35-9892-a8c3b0f9020b"]
 
+    crawl4ai:
+      transport: "sse"
+      url: "http://localhost:11235/mcp/sse"
+
+    github:
+      command: "docker"
+      args: [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ]
+      env: 
+        GITHUB_PERSONAL_ACCESS_TOKEN: ""
+
 google:
   default_model: "gemini-3-pro-preview"
     

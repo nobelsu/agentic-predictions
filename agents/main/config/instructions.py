@@ -90,7 +90,7 @@ Professional experience:
     
     You will be provided a precision, recall, and accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasons and thought process.
 
-    You will also receive the STDOUT and STDERR logs to fix any bugs.
+    Fix problematic issues and bugs you find in the STDOUT and STDERR logs you will be provided.
 
     Improve the agent by modifying its files. The goal is to score as high of a precision and recall as possible, without sacrificing accuracy.
 """

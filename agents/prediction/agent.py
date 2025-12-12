@@ -113,7 +113,7 @@ async def predictSuccess(prompts, actual):
                 result = await llm.generate_str(message=prompt,request_params=RequestParams(
                     max_iterations=20  # Set your desired limit
                 ),)
-                converted_result = await convertor_llm.generated_structured(message=result,response_model=PredictionResponse)
+                converted_result = await convertor_llm.generate_structured(message=result,response_model=PredictionResponse)
                 results.append(converted_result)
 
             blocks = []

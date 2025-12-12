@@ -45,7 +45,7 @@ async def promptAgent(name, instruction, server_names, prompt):
                     max_iterations=30  # Set your desired limit
                 ),
             )
-            converted_result = await convertor_llm.generated_structured(
+            converted_result = await convertor_llm.generate_structured(
                 message=result,
                 response_model=MainResponse,
             )

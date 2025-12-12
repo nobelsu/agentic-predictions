@@ -87,6 +87,8 @@ Professional experience:
     Do NOT change the output format of the agent. It must strictly be the PredictionResponse class. 
     
     Do NOT make unnecessary code changes. Do NOT make changes that are unrelated to the agent.
+
+    Do NOT provide the agent with access to the CSV file. Assume that it does not have this data.
     
     You will be provided a precision, recall, and accuracy scoring of the agent, as well as its responses, the actual answers, alongside the agent's reasons and thought process.
 

@@ -1,0 +1,64 @@
+[INFO] 2025-12-14T02:24:47 mcp_agent.core.context - Configuring logger with level: info
+[INFO] 2025-12-14T02:24:47 mcp_agent.mcp_application - Loading subagents from configuration...
+[INFO] 2025-12-14T02:24:47 mcp_agent.mcp_application - MCPApp initialized
+{
+  "data": {
+    "progress_action": "Running",
+    "target": "mcp_application",
+    "agent_name": "mcp_application_loop",
+    "session_id": "c897e9b9-bc4c-442c-8512-d41cf53d3642"
+  }
+}
+[INFO] 2025-12-14T02:24:47 mcp_agent.mcp.mcp_connection_manager - crawl4ai: Up and running with a 
+persistent connection!
+[INFO] 2025-12-14T02:24:47 mcp_agent.mcp.mcp_connection_manager - sequential-thinking: Up and 
+running with a persistent connection!
+[INFO] 2025-12-14T02:24:47 mcp_agent.mcp.mcp_connection_manager - web-search-mcp: Up and running 
+with a persistent connection!
+[INFO] 2025-12-14T02:25:01 mcp_agent.mcp.mcp_aggregator.convertor-agent - Requesting tool call
+{
+  "data": {
+    "progress_action": "Calling Tool",
+    "tool_name": "search_web",
+    "server_name": "web-search-mcp",
+    "agent_name": "prediction-agent"
+  }
+}
+[INFO] 2025-12-14T02:25:16 mcp_agent.mcp.mcp_aggregator.convertor-agent - Requesting tool call
+{
+  "data": {
+    "progress_action": "Calling Tool",
+    "tool_name": "search_web",
+    "server_name": "web-search-mcp",
+    "agent_name": "prediction-agent"
+  }
+}
+[INFO] 2025-12-14T02:25:30 mcp_agent.mcp.mcp_aggregator.convertor-agent - Requesting tool call
+{
+  "data": {
+    "progress_action": "Calling Tool",
+    "tool_name": "search_web",
+    "server_name": "web-search-mcp",
+    "agent_name": "prediction-agent"
+  }
+}
+[INFO] 2025-12-14T02:26:07 mcp_agent.mcp.mcp_aggregator.convertor-agent - Requesting tool call
+{
+  "data": {
+    "progress_action": "Calling Tool",
+    "tool_name": "search_web",
+    "server_name": "web-search-mcp",
+    "agent_name": "prediction-agent"
+  }
+}
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_aggregator.convertor-agent - Last aggregator closing,
+shutting down all persistent connections...
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_connection_manager - Disconnecting all persistent 
+server connections...
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_connection_manager - crawl4ai: Requesting shutdown...
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_connection_manager - sequential-thinking: Requesting 
+shutdown...
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_connection_manager - web-search-mcp: Requesting 
+shutdown...
+[INFO] 2025-12-14T02:26:49 mcp_agent.mcp.mcp_connection_manager - All persistent server 
+connections signaled to disconnect.

@@ -44,8 +44,7 @@ async def improve(prompt):
 async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_size=10):
     async with app.run() as agent_app:
 
-        logger = agent_app.logger
-        logger.info("[TRAINING] Starting training...")
+        print("[TRAINING] Starting training...")
 
         start = time.time()
 
@@ -64,11 +63,11 @@ async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_siz
 
             async with agent:
 
-                logger.info("[TRAINING] Agent initialized...")
+                print("[TRAINING] Agent initialized...")
 
                 llm = await agent.attach_llm(GoogleAugmentedLLM)
 
-                logger.info("[TRAINING] LLM attached...")
+                print("[TRAINING] LLM attached...")
 
                 for row in reader:
 
@@ -84,11 +83,11 @@ async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_siz
 
                     if len(rows) >= step_size:
                         
-                        logger.info(f"[TRAINING] Running predictions on rows {row_counter-step_size+1} to {row_counter}...")
+                        print(f"[TRAINING] Running predictions on rows {row_counter-step_size+1} to {row_counter}...")
 
                         proc_res = subprocess.run(["uv", "run", "agents/prediction/prediction_agent.py", "--p"] + rows + ["--s"] + success_values, capture_output=True, text=True)
                         
-                        logger.info(f"[TRAINING] Finished predictions on rows {row_counter-step_size+1} to {row_counter}!")
+                        print(f"[TRAINING] Finished predictions on rows {row_counter-step_size+1} to {row_counter}!")
 
                         writeText("utils/text/std_out.txt", proc_res.stdout)
                         writeText("utils/text/std_err.txt", proc_res.stderr)
@@ -105,7 +104,7 @@ async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_siz
                         augmentedInstructions = instructions + "\n\nSTDOUT:\n" + stdOut + "\n\nSTDERR:\n" + stdErr
                         await upload(augmentedInstructions, "std_reports", "files.db")
 
-                        logger.info(f"[TRAINING] Making changes based on rows {row_counter-step_size+1} to {row_counter}...")
+                        print(f"[TRAINING] Making changes based on rows {row_counter-step_size+1} to {row_counter}...")
 
                         changes = await llm.generate(
                             message=augmentedInstructions,
@@ -115,7 +114,7 @@ async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_siz
                             ),
                         )
 
-                        logger.info(f"[TRAINING] Finished making changes based on rows {row_counter-step_size+1} to {row_counter}!")
+                        print(f"[TRAINING] Finished making changes based on rows {row_counter-step_size+1} to {row_counter}!")
                         
                         extracted_changes = await extract(str(changes))
                         await upload(extracted_changes, "changes", "files.db")
@@ -125,4 +124,4 @@ async def train(row_start=1, row_end=100000, csv_path="data/train.csv", step_siz
         
         end = time.time()
         t = end - start
-        logger.info(f"[TRAINING] Total run time: {t:.2f}s")
+        print(f"[TRAINING] Total run time: {t:.2f}s")

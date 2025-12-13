@@ -2,14 +2,15 @@ from pydantic import BaseModel
 import asyncio
 import argparse
 import traceback
+from datetime import datetime, timezone, timedelta
+import aiosqlite
+import csv
 
 from mcp_agent.app import MCPApp
 from mcp_agent.agents.agent import Agent
 from mcp_agent.workflows.llm.augmented_llm_google import GoogleAugmentedLLM
 from mcp_agent.config import Settings, MCPSettings, MCPServerSettings, LoggerSettings, GoogleSettings
 from mcp_agent.workflows.llm.augmented_llm import RequestParams
-
-from utils.sqlite import upload
 
 # DO NOT CHANGE START
 
@@ -162,16 +163,45 @@ async def predictSuccess(prompts, success_values):
                             ""
                         ]
                     blocks.append("\n".join(block))
+                
                 precision = "No data because no true or false positives"
                 recall = "No data because no true positive or false negative"
                 fscore = "No data because no true positive, false negative, or false positive"
+                
                 if (tp+fp):
                     precision = f"{tp/(tp+fp)}"
                 if (tp+fn):
                     recall = f"{tp/(tp+fn)}"
                 if (tp+fn+fp):
                     fscore = f"{(1.25*tp)/(1.25*tp+0.25*fn+fp)}"
+
+                with open("output/values.csv", "w", newline="", encoding="utf-8") as f:
+                    w = csv.writer(f)
+                    w.writerows([tp,fp,tn,fn])
+                
                 return (f"**REPORT OF RESULTS:**\n\nF_0.5 score: {fscore}\nPrecision: {precision}\nRecall: {recall}\n\n") + ("\n".join(blocks))
+
+async def upload(content, table_name="reports", database_name="../../files.db"):
+    async with aiosqlite.connect(database_name) as db:
+        await db.execute(f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                content TEXT NOT NULL,
+                created_at DATETIME NOT NULL
+            )
+        """)
+
+        async with db.execute(f"SELECT COUNT(*) FROM {table_name}") as cur:
+            (count,) = await cur.fetchone()
+        if count == 0:
+            await db.execute(f"DELETE FROM sqlite_sequence WHERE name='{table_name}'")
+            await db.commit()
+
+        await db.execute(f"""
+            INSERT INTO {table_name} (content, created_at)
+            VALUES (?, ?)
+        """, (content, datetime.now(timezone(timedelta(hours=7)))))
+        await db.commit()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Prediction Agent script")
@@ -183,6 +213,6 @@ if __name__ == "__main__":
     success_values = args.s
     
     report = asyncio.run(predictSuccess(prompts, success_values))
-    asyncio.run(upload(report, "reports", "files.db"))
+    asyncio.run(upload(report))
 
 # DO NOT CHANGE END

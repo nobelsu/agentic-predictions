@@ -25,7 +25,7 @@ settings = Settings(
     execution_engine="asyncio",
     logger=LoggerSettings(
         transports=["console", "file"],
-        level="debug",
+        level="info",
         progress_display=True,
         path_settings={
             "path_pattern":"logs/prediction/prediction-{unique_id}.jsonl",

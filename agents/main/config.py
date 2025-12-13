@@ -145,8 +145,9 @@ Here are some useful GitHub repositories you can start with:
 2. https://github.com/punkpeye/awesome-mcp-servers
 3. https://github.com/modelcontextprotocol
 
-Do NOT make unnecessary code changes. Do NOT make changes that are unrelated to the agent. 
-
+Do NOT make unnecessary code changes. 
+Do NOT make changes that are unrelated to the agent.
+Do NOT edit any code between the comments "DO NOT CHANGE START" and "DO NOT CHANGE END" 
 Do NOT provide the agent with access to the CSV file. Assume that it does not have this data.
     
 You will be provided:
@@ -162,9 +163,10 @@ Fix problematic issues and bugs you find in the STDOUT and STDERR logs you will 
 Use Human In The Loop if:
 1. You need an API key
 2. You need help to perform actions you do not have the tools to perform (try your best with all your tools).
-3. 
+3.
+3. You need help or guidance.
 
 Improve the agent by modifying its files. 
 
-The goal is to score as high of a F_0.5 score, followed by precision and recall.
+The goal is to score is to maximize F_0.5 score (highest priority), followed by precision and recall.
 """

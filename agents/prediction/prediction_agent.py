@@ -72,15 +72,15 @@ async def predictSuccess(prompts, success_values):
             - Gets acquired for more than $500M;
             - Raises over $500M in total funding.
 
+            Use sequential thinking to reason about this.
+            
+            Use arxiv to find research papers on arxiv, then use crawl4ai perform deep research on reports or articles.
+
             Your task is to predict whether or not the startup will succeed. You will need to output:
             1. prediction: Whether or not the startup will succeed (True/False)
             2. reason: One paragraph reasoning for prediction
 
             DO NOT output anything else.
-            
-            Use sequential thinking to reason and formulate a plan.
-            
-            Use arxiv to find research papers on arxiv, then use crawl4ai perform deep research on reports or articles.
         """
 
         agent = Agent(
@@ -99,7 +99,7 @@ async def predictSuccess(prompts, success_values):
                 prediction: Boolean value indicating the agent's prediction (success or not)
                 reason: String value indicating the agent's explanation for the prediction
 
-                Use only the information you are fed. Set the field to be an empty string if you find nothing in the output matching it. Do not leave it as `None`.
+                Use only the information you are fed. 
             """,
             server_names=[]
         )

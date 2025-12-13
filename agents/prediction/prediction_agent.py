@@ -183,7 +183,7 @@ async def predictSuccess(prompts, success_values):
                 
                 return (f"**REPORT OF RESULTS:**\n\nF_0.5 score: {fscore}\nPrecision: {precision}\nRecall: {recall}\n\n") + ("\n".join(blocks))
 
-async def upload(content, table_name="reports", database_name="../../files.db"):
+async def upload(content, table_name="reports", database_name="files.db"):
     async with aiosqlite.connect(database_name) as db:
         await db.execute(f"""
             CREATE TABLE IF NOT EXISTS {table_name} (

@@ -7,7 +7,8 @@ logger:
   show_progress: true
   path_settings:
     path_pattern: "logs/main/main-{unique_id}.jsonl"
-    unique_id: "session_id"
+    unique_id: "timestamp"
+    timestamp_format: "%Y%m%d_%H%M%S"
 
 mcp:
   servers:

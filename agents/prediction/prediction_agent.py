@@ -29,7 +29,8 @@ settings = Settings(
         progress_display=True,
         path_settings={
             "path_pattern":"logs/prediction/prediction-{unique_id}.jsonl",
-            "unique_id":"session_id",
+            "unique_id": "timestamp",
+            "timestamp_format": "%Y%m%d_%H%M%S"
         },
     ),
     mcp=MCPSettings(
@@ -43,6 +44,10 @@ settings = Settings(
                 transport="sse",
                 url="http://localhost:11235/mcp/sse"
             ),
+            "web-search-mcp": MCPServerSettings( 
+                command="npx",
+                args=["-y", "@guhcostan/web-search-mcp@latest"]
+            )
         }
     ),
     google=GoogleSettings(default_model="gemini-2.5-flash"),
@@ -70,7 +75,7 @@ async def predictSuccess(prompts, success_values):
 
             Use sequential thinking to reason about this.
             
-            Use crawl4ai perform deep research on reports or articles.
+            Use web-search-mcp to find websites for the data you need, then use crawl4ai to web crawl on these websites.
 
             Your task is to predict whether or not the startup will succeed. You will need to output:
             1. prediction: Whether or not the startup will succeed (True/False)
@@ -82,7 +87,7 @@ async def predictSuccess(prompts, success_values):
         agent = Agent(
             name="prediction-agent",
             instruction=prediction_instruction,
-            server_names=["crawl4ai","sequential-thinking"],
+            server_names=["crawl4ai","sequential-thinking","web-search-mcp"],
         )
         convertor_agent = Agent(
             name="convertor-agent",

@@ -8,7 +8,7 @@ model_improve = "gemini-3-pro-preview"
 server_convert = []
 server_summarize = ["filesystem"]
 server_extract = []
-server_improve =  ["sequential-thinking", "context7", "filesystem", "crawl4ai", "github", "mcp-compass", "mcp-registry", "web-search-mcp", "arxiv"]
+server_improve =  ["sequential-thinking", "context7", "filesystem", "crawl4ai", "github", "mcp-compass", "mcp-registry", "web-search-mcp"]
 
 # ITERATION LIMIT
 iter_convert = 10
@@ -57,11 +57,7 @@ String containing the extracted output of the agent.
 instruct_improve = """
 You are a programmer and researcher agent.
 
-You are trying to find ways to improve the performance of an AI agent that predicts whether or not a start up will succeed based on founder profile.
-
-I want you to focus on the improving the agent by:
-1. Adding MCP servers
-2. Editing the instructions
+You are improving the list of Model Context Protocol (MCP) servers and instructions provided to another AI agent that predicts whether or not a start up will succeed based on founder profile.
 
 For context, this founder's profile is anonymized, with only details on educational and professional background, as well as previous IPOs and acquisitions. 
 
@@ -69,11 +65,9 @@ Use sequential thinking to reason about this.
 
 Use file system to access the files of the AI agent. The agent files are located in ~/Desktop/Vela/vela-temp/agents/prediction
 
-Use web-search-mcp and crawl4ai for deep research by:
-1. First using web-search-mcp to obtain links
-2. Then using cral4ai to web crawl on those links, then extracting data from code examples, documentation, research documents or online reports and articles. 
+Use web-search-mcp to obtain find websites you want to read, then using crawl4ai to web crawl on those links, then extracting data from code examples, documentation, research documents or online reports and articles. 
 
-For finding MCP servers with web-search-mcp then crawl4ai, here are some links to ground your search on:
+For finding MCP servers with web-search-mcp then crawl4ai, here are links to ground your search on:
 1. https://registry.modelcontextprotocol.io/
 2. https://mcpservers.org/
 3. https://www.pulsemcp.com/servers
@@ -82,16 +76,15 @@ For finding MCP servers with web-search-mcp then crawl4ai, here are some links t
 
 Alternatively, use mcp-compass AND mcp-registry to find more MCP servers to add.
 
-Avoid MCP servers that strictly require paid API keys. 
+Avoid MCP servers that strictly require paid API keys. MCP servers with free tier API keys are usable. Free MCP servers are good too.
 
 Use context7 and github to find documentation, and to figure out how to add the MCP servers you want to add.
     
-Here are some useful GitHub repositories you can start with:
+Here are some useful GitHub repositories you can ground your search on:
 1. https://github.com/lastmile-ai/mcp-agent.git
 2. https://github.com/punkpeye/awesome-mcp-servers
 3. https://github.com/modelcontextprotocol
 
-Do NOT make unnecessary code changes. 
 Do NOT make changes that are unrelated to the agent.
 Do NOT edit any code between the comments "DO NOT CHANGE START" and "DO NOT CHANGE END" 
 Do NOT provide the agent with access to the CSV file. Assume that it does not have this data.
@@ -103,10 +96,11 @@ You will be provided:
 4. The agent's responses
 5. The agent's reasoning
 6. The actual answers
+7. A summary of STDOUT and STDERR logs
 
 Fix problematic issues and bugs you find in the STDOUT and STDERR logs you will be provided.
 
-Use Human In The Loop if:
+Use Human In The Loop tool whenever:
 1. You need an API key
 2. You need help to perform actions you do not have the tools to perform (try your best with all your tools).
 3. You need help or guidance.
@@ -114,6 +108,4 @@ Use Human In The Loop if:
 Improve the agent by modifying its files. 
 
 The goal is to score is to maximize F_0.5 score (highest priority), followed by precision and recall.
-
-Your generated output should be a string summary of the changes you made.
 """

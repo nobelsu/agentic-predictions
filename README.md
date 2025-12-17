@@ -18,7 +18,7 @@ This repository contains agent definitions, schemas, utilities, and sample data 
 
 ## Overview
 
-This project explores **agentic reasoning** for prediction tasks. Multiple agents collaborate through MCP to gather context, reason over structured inputs, and produce predictions (e.g. startup success likelihood). The system is designed to be modular, extensible, and easy to experiment with.
+This project explores **agentic reasoning** for prediction tasks. It utilizes a feedback loop between an "improver agent" and a "prediction agent" in order to optimize the context and tools of the latter. This means that this workflow is generalizable to any "worker agent" with feedback mechanisms. 
 
 ## Features
 
